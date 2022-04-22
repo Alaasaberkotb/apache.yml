@@ -1,0 +1,61 @@
+- name: task for web application
+  hosts: worker
+  tasks:
+   - name: install httpd
+     yum:
+       name: httpd
+   - name: start and enable apache service
+     service:
+      name: httpd
+      state: started
+      enabled: true
+   - name: open firewall for http
+     firewalld:
+      service: http
+      permanent: yes
+      state: enabled
+      immediate: true
+   - name: Creates directory
+     file:
+       path: /var/www/html/private
+       state: directory
+   - name: Create a iti file
+     copy:
+      dest: /var/www/html/private/iti.html
+      content: 
+         Welcome ITI   
+   - name: copy the configration file 
+     copy:
+      src: /etc/httpd/conf/httpd.conf
+      dest: /etc/httpd/conf/httpd.conf
+     notify: restart
+   - name: Creating a file with content
+     copy:
+       dest: "/var/www/html/private/.htaccess"
+       content: 
+        AuthType basic
+
+        AuthName "ITI Private area"
+
+        AuthUserFile "/etc/www.password"
+
+        Require valid-user
+
+   - name: install python3
+     package: 
+        name: python3
+        state: present
+   - name: lib pip
+     pip:
+       name: passlib
+       state: present
+   - name: htpasswd
+     htpasswd: 
+          path: "/etc/www.password"
+          name: alaa
+          password: '1'
+  handlers:
+   - name: restart 
+     service:
+       name: httpd
+       state: restarted    
