@@ -1,5 +1,5 @@
 - name: task for web application
-  hosts: worker
+  hosts: slave
   tasks:
    - name: install httpd
      yum:
